@@ -4,3 +4,6 @@ matplotlib
 jinja2
 icalendar
 pyyaml
+beautifulsoup4
+requests
+lxml

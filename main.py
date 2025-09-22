@@ -6,20 +6,23 @@ from typing import Any, Dict, List
 from datetime import datetime
 import yaml
 
-# Módulos locales (¡¡importantes!!):
+# Módulos locales
 from src.markets import fetch_watchlist
 from src.calendar_util import get_free_blocks
+from src.news import fetch_news
 
 
 def load_config(path: str) -> Dict[str, Any]:
-    """Carga config.yaml y, si existe, hace overlay con config.local.yaml (no versionado)."""
+    """
+    Carga config.yaml y, si existe, hace overlay con config.local.yaml (no versionado).
+    """
     base = Path(path)
     if not base.exists():
         raise FileNotFoundError(f"No se encontró el archivo de configuración: {path}")
     with base.open("r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f) or {}
 
-    # Overlay local opcional (para cosas sensibles como la URL ICS secreta)
+    # Overlay local opcional (para secretos como la URL ICS)
     local = Path("config.local.yaml")
     if local.exists():
         with local.open("r", encoding="utf-8") as f:
@@ -39,7 +42,7 @@ def fmt_hm(dt: datetime) -> str:
 def main() -> None:
     cfg = load_config("config.yaml")
 
-    # --- Markets ---
+    # === 📈 Markets ===
     tickers: List[str] = list(cfg.get("watchlist", [])) if isinstance(cfg.get("watchlist", []), list) else []
     charts_dir: str = str(cfg.get("paths", {}).get("charts_dir", "outputs/charts"))
 
@@ -55,7 +58,7 @@ def main() -> None:
     else:
         print("⚠️ Sin info de mercados")
 
-    # --- Calendar / Huecos ---
+    # === 🗓️ Agenda (hoy) ===
     ics_path: str = str(cfg.get("paths", {}).get("calendar_ics", "data/calendar.ics"))
     min_block: int = int(cfg.get("study_blocks", {}).get("min_block_minutes", 60))
     deep_block: int = int(cfg.get("study_blocks", {}).get("deep_block_minutes", 90))
@@ -81,6 +84,29 @@ def main() -> None:
             print(f"{s['type']}: {fmt_hm(s['start'])}–{fmt_hm(s['end'])} ({s['minutes']} min)")
     else:
         print("Sin sugerencias")
+
+    # === 📰 News ===
+    news_cfg: Dict[str, Any] = cfg.get("news", {}) or {}
+    kws: List[str] = list(news_cfg.get("keywords", ["AI", "Machine Learning", "Fintech SaaS"]))
+    limit: int = int(news_cfg.get("limit", 6))
+    max_age: int = int(news_cfg.get("max_age_hours", 48))
+    lang: str = str(news_cfg.get("lang", "en-US"))
+    region: str = str(news_cfg.get("region", "US"))
+
+    articles = fetch_news(kws, limit=limit, max_age_hours=max_age, lang=lang, region=region)
+
+    print(f"\n=== 📰 AI/ML & Fintech News (≤ {max_age}h) ===")
+    if not articles:
+        print("Sin noticias recientes con esos filtros.")
+    else:
+        for a in articles:
+            when = a["published"].strftime("%Y-%m-%d %H:%M")
+            print(f"• [{a['source']}] {a['title']}  ({when})")
+            print(f"  {a['url']}")
+            if a.get("snippet"):
+                print(f"  – {a['snippet'][:180]}...\n")
+            else:
+                print()
 
 
 if __name__ == "__main__":
