@@ -16,3 +16,7 @@ outputs/
 
 # Archivos temporales
 *.log
+
+#calendar
+config.local.yaml
+data/

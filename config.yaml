@@ -4,5 +4,11 @@ watchlist:
   - GOOGL
   - SNOW
   - PLTR
+
 paths:
   charts_dir: "outputs/charts"
+  calendar_ics: "USE_LOCAL_OVERRIDE"   
+
+study_blocks:
+  min_block_minutes: 60
+  deep_block_minutes: 90
