@@ -1,0 +1,6 @@
+pandas
+yfinance
+matplotlib
+jinja2
+icalendar
+pyyaml
