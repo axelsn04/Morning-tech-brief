@@ -1,0 +1,8 @@
+watchlist:
+  - NVDA
+  - MSFT
+  - GOOGL
+  - SNOW
+  - PLTR
+paths:
+  charts_dir: "outputs/charts"
