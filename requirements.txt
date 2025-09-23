@@ -8,3 +8,6 @@ beautifulsoup4
 requests
 lxml
 recurring-ical-events
+openai
+python-dotenv
+pyyaml

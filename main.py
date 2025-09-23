@@ -6,23 +6,23 @@ from typing import Any, Dict, List
 from datetime import datetime
 import yaml
 
-# Módulos locales
+# Local modules
 from src.markets import fetch_watchlist
 from src.calendar_util import get_free_blocks
 from src.news import fetch_news
 from src.render import render_brief
-from src.ics_sync import sync_ics  # ← NUEVO: descarga/actualiza el .ics
+from src.llm import summarize_news
 
 
 def load_config(path: str) -> Dict[str, Any]:
-    """Carga config.yaml y, si existe, hace overlay con config.local.yaml (no versionado)."""
+    """Load config.yaml and, if present, overlay with config.local.yaml (unversioned)."""
     base = Path(path)
     if not base.exists():
         raise FileNotFoundError(f"No se encontró el archivo de configuración: {path}")
     with base.open("r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f) or {}
 
-    # Overlay local opcional (para secretos como la URL ICS)
+    # Optional local overlay (for secrets like ICS URL, API keys, etc.)
     local = Path("config.local.yaml")
     if local.exists():
         with local.open("r", encoding="utf-8") as f:
@@ -59,16 +59,6 @@ def main() -> None:
 
     # === 🗓️ Agenda (hoy) ===
     ics_path: str = str(cfg.get("paths", {}).get("calendar_ics", "data/calendar.ics"))
-    ics_url: str = str(cfg.get("paths", {}).get("calendar_ics_url", ""))
-
-    # Sincroniza el ICS desde Google Calendar (si hay URL)
-    if ics_url:
-        try:
-            synced_path = sync_ics(ics_url, ics_path)
-            print(f"[calendar] ICS actualizado → {synced_path}")
-        except Exception as e:
-            print(f"[WARN] No se pudo actualizar el ICS: {e}")
-
     min_block: int = int(cfg.get("study_blocks", {}).get("min_block_minutes", 60))
     deep_block: int = int(cfg.get("study_blocks", {}).get("deep_block_minutes", 90))
     blocks, suggestions = get_free_blocks(
@@ -116,11 +106,24 @@ def main() -> None:
             else:
                 print()
 
+    # === 🧠 AI Editorial (Ollama/OpenAI) ===
+    ai_cfg: Dict[str, Any] = cfg.get("ai", {}) or {}
+    editorial: Dict[str, Any] = {"summary": "", "macro": "", "picks": []}
+    if ai_cfg.get("enabled", True) and articles:
+        editorial = summarize_news(articles, ai_cfg)
+        print("\n=== 🧠 AI Editorial Summary ===")
+        if editorial.get("summary"):
+            print(editorial["summary"])
+        if editorial.get("macro"):
+            print("\nMacro:")
+            print(editorial["macro"])
+        if editorial.get("picks"):
+            print("\nResearch picks:")
+            for p in editorial["picks"]:
+                print(f"- {p.get('title','')} — {p.get('why','')}")
+
     # === 🖨️ Render HTML ===
     out_html = Path("outputs/brief.html")
-    out_dir = out_html.parent
-    out_dir.mkdir(parents=True, exist_ok=True)
-
     markets_list: List[Dict[str, Any]] = []
     if df is not None and not df.empty:
         for r in df.to_dict(orient="records"):
@@ -130,7 +133,7 @@ def main() -> None:
                 p = Path(chart_path)
                 if not p.is_absolute():
                     p = (Path.cwd() / p).resolve()
-                chart_url = p.as_uri()  # file:///... para que el navegador abra el PNG local
+                chart_url = p.as_uri()
             markets_list.append({
                 "ticker": r.get("ticker", ""),
                 "price": float(r.get("price", 0.0)),
@@ -168,9 +171,15 @@ def main() -> None:
         "blocks": blocks_tpl,
         "suggestions": sugg_tpl,
         "news": news_tpl,
+        # AI editorial
+        "editorial_summary": editorial.get("summary", ""),
+        "editorial_macro": editorial.get("macro", ""),
+        "editorial_picks": editorial.get("picks", []),
+        # extras shown in template
         "min_block": min_block,
         "max_age": max_age,
     }
+
     out_file = render_brief(context, template_path, str(out_html))
     print(f"\n🖨️  HTML generado: {out_file}")
 

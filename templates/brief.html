@@ -45,7 +45,7 @@
     header .meta{color:var(--muted);font-size:12px}
 
     /* Contenedores */
-    .card{
+    .card, .panel{
       background:var(--card);
       border:1px solid var(--border);
       border-radius:14px;
@@ -53,6 +53,7 @@
       margin:12px 0;
     }
     h2{font-size:18px;margin:10px 0 12px;color:var(--accent)}
+    h3{font-size:16px;margin:6px 0 10px;color:var(--accent)}
     .muted{color:var(--muted)}
     .small{font-size:12px}
     a{color:#93c5fd;text-decoration:none} a:hover{text-decoration:underline}
@@ -93,7 +94,6 @@
         <h1>🌅 Morning Tech Brief</h1>
         <div class="meta">Generated: {{ generated_at }}</div>
       </div>
-      <!-- (espacio para botones futuros) -->
       <div class="meta"></div>
     </header>
 
@@ -175,6 +175,35 @@
           {% endfor %}
         {% else %}
           <div class="muted">No recent news for these keywords.</div>
+        {% endif %}
+      </div>
+
+      <!-- 🧠 Editorial (NOW INSIDE MAIN) -->
+      <div class="panel">
+        <h3>🧠 Daily AI Summary & Research Picks</h3>
+
+        {% if editorial_summary %}
+          <p style="margin-top:.5rem">{{ editorial_summary }}</p>
+        {% else %}
+          <p class="muted">No AI summary today.</p>
+        {% endif %}
+
+        {% if editorial_macro %}
+          <h4 style="margin-top:1rem;">Macro take</h4>
+          <p>{{ editorial_macro }}</p>
+        {% endif %}
+
+        {% if editorial_picks and editorial_picks|length > 0 %}
+          <h4 style="margin-top:1rem;">Research picks</h4>
+          <ul>
+            {% for p in editorial_picks %}
+              <li>
+                <strong>{{ p.title }}</strong>
+                {% if p.why %} — {{ p.why }}{% endif %}
+                {% if p.link %} · <a href="{{ p.link }}" target="_blank" rel="noopener">link</a>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
         {% endif %}
       </div>
     </main>

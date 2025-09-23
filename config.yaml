@@ -29,7 +29,15 @@ news:
     - "AR/AP automation"
     - "fintech SaaS"
     - "enterprise AI"
-  limit: 6              # cuántas notas quieres mostrar
-  max_age_hours: 48     # solo noticias recientes (últimas 48h)
+  limit: 5              # cuántas notas quieres mostrar
+  max_age_hours: 36     # solo noticias recientes (últimas 48h)
   lang: "en-US"         # idioma/noticias en inglés
   region: "US"          # región (US funciona bien para tech)
+
+ai:
+  enabled: true
+  provider: "ollama"
+  model: "qwen2.5:3b-instruct"
+  max_tokens: 600
+  temperature: 0.3
+  timeout_sec: 35
