@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Morning Tech Brief</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg:#0b1220; --fg:#e6eaf2; --muted:#9aa4b2; --card:#121a2b;
+      --accent:#7dd3fc; --ok:#22c55e; --bad:#ef4444;
+      --border:#1f2a44;
+      --sidebar-w: 320px;
+      --gutter: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--fg);
+      font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",sans-serif;
+    }
+
+    /* ====== App layout: sidebar + main (full screen) ====== */
+    .app{
+      display:grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      gap: var(--gutter);
+      min-height:100vh;
+      padding: 18px 24px;
+    }
+
+    /* Sidebar fijo (sticky) como en Google Calendar */
+    aside{
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      height: fit-content;
+    }
+
+    header{
+      grid-column: 1 / -1;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px 8px 24px;
+    }
+    header h1{font-size:26px;margin:0}
+    header .meta{color:var(--muted);font-size:12px}
+
+    /* Contenedores */
+    .card, .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      margin:12px 0;
+    }
+    h2{font-size:18px;margin:10px 0 12px;color:var(--accent)}
+    h3{font-size:16px;margin:6px 0 10px;color:var(--accent)}
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    a{color:#93c5fd;text-decoration:none} a:hover{text-decoration:underline}
+
+    /* Markets grid en el MAIN, responsive */
+    .grid{display:grid;gap:12px}
+    .markets{
+      grid-template-columns: repeat( auto-fit, minmax(260px, 1fr) );
+    }
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #1e263c}
+    .row:last-child{border-bottom:0}
+    .chip{font-size:12px;padding:2px 8px;border-radius:999px;background:#1e293b;color:#cbd5e1;border:1px solid #2b3a5c;white-space:nowrap}
+    .up{color:var(--ok)} .down{color:var(--bad)}
+    .charts img{width:100%;height:auto;border-radius:10px;border:1px solid var(--border);background:#0b1220;display:block}
+
+    /* News list full-width dentro del MAIN */
+    .news-item{padding:10px 0;border-bottom:1px dashed #1e263c}
+    .news-item:last-child{border-bottom:0}
+
+    /* Sidebar bloques */
+    .sb-section{margin-bottom:16px}
+    .sb-title{margin:6px 0 10px;color:var(--accent);font-size:16px}
+    .sb-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px dashed #1e263c;border-radius:12px;margin-top:8px}
+
+    /* Responsivo para pantallas angostas: sidebar debajo */
+    @media (max-width: 980px){
+      .app{grid-template-columns: 1fr; padding: 12px}
+      aside{position:static}
+      header{padding:0 0 8px 0}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header ocupa todo el ancho superior -->
+    <header>
+      <div>
+        <h1>🌅 Morning Tech Brief</h1>
+        <div class="meta">Generated: 2025-09-23 15:48</div>
+      </div>
+      <div class="meta"></div>
+    </header>
+
+    <!-- ===== Sidebar (izquierda) ===== -->
+    <aside>
+      <div class="sb-section">
+        <div class="sb-title">🗓️ Agenda — Free blocks today</div>
+        <div class="card">
+              <div class="row">
+                <div><strong>08:00–21:00</strong></div>
+                <div class="muted">780 min</div>
+              </div>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">🎯 Study suggestions</div>
+        <div class="card">
+              <div class="row">
+                <div><strong>Deep work</strong></div>
+                <div class="muted">08:00–21:00 (780 min)</div>
+              </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== Main (derecha) ===== -->
+    <main>
+      <!-- Markets ocupa todo el ancho del MAIN -->
+      <h2>📈 Markets Watch</h2>
+      <div class="grid markets">
+        <div class="card">
+          <div class="row">
+            <div><strong>NVDA</strong></div>
+            <div class="chip">Movimiento ↓ -2.8%</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$178.43</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -2.82%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/NVDA.png" alt="NVDA chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>MSFT</strong></div>
+            <div class="chip">Sin señal</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$509.23</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -1.01%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/MSFT.png" alt="MSFT chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>GOOGL</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$251.66</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -0.34%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/GOOGL.png" alt="GOOGL chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>SNOW</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$223.54</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -2.61%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/SNOW.png" alt="SNOW chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>PLTR</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$182.55</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="up">
+              +1.80%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/PLTR.png" alt="PLTR chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>META</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$755.40</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -1.28%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/META.png" alt="META chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>AAPL</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$254.43</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -0.64%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/AAPL.png" alt="AAPL chart"/>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div><strong>AMZN</strong></div>
+            <div class="chip">MA20&gt;MA50 ✅</div>
+          </div>
+          <div class="row">
+            <div class="muted">Last</div>
+            <div><strong>$220.71</strong></div>
+          </div>
+          <div class="row">
+            <div class="muted">d/d</div>
+            <div class="down">
+              -3.04%
+            </div>
+          </div>
+          <div class="charts" style="margin-top:10px">
+            <img src="charts/AMZN.png" alt="AMZN chart"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- News full-width debajo de Markets -->
+      <h2>📰 AI/ML & Fintech News (≤ 36h)</h2>
+      <div class="card">
+            <div class="news-item">
+              <div><strong>[Cisco Blogs]</strong> <a href="https://news.google.com/rss/articles/CBMirgFBVV95cUxOUG5zLU5reGdTQ3FvbkxnOElsS1ZUSDJXTzFTQjFnSWVGdGo1UTBXYnM4YU1CR0FkTnVubVBQcDFZS1o0UGRIWmtxY3BfbU0xZklDT3dWcUhxQWpjRGlBdFdKM0dYdnltTUpqeHZ0RDdQc0NmM2lBNjE0ODFwbGM0THJGN0RONXZ3TUkzbWN4M244V3VCUFhETEwxcW5ibjA0cEV6U0llSW15MTlaRXc?oc=5" target="_blank" rel="noopener">The Magic of Building a Hybrid RAG AI Assistant for Automation Certification - Cisco Blogs</a></div>
+              <div class="muted small">2025-09-23 21:44</div>
+<div class="small">The Magic of Building a Hybrid RAG AI Assistant for Automation Certification Cisco Blogs</div>            </div>
+            <div class="news-item">
+              <div><strong>[GovTech]</strong> <a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPY01feEhWRkNuWFZKMXBMY2lDRERIeGNBSVFzdE5jc0o0UVZidUxLaFR6bXA0R3g0Slczc014b09PMXRUZmV2UTlxTjh1M2ZXaGZkUlRGVThHUHBYTFVRams3clEwRm55RWJlcmZEelVCZVEzbUozTUxyOFNiZ0JuM1RrVHNibFc3NFRyWnJPcjM?oc=5" target="_blank" rel="noopener">Axon Says It Will Buy 911 AI Call Center Tech Firm Prepared - GovTech</a></div>
+              <div class="muted small">2025-09-23 21:35</div>
+<div class="small">Axon Says It Will Buy 911 AI Call Center Tech Firm Prepared GovTech</div>            </div>
+            <div class="news-item">
+              <div><strong>[Kiplinger]</strong> <a href="https://news.google.com/rss/articles/CBMiekFVX3lxTE1OckxHVWJFSUxPQ1kzTnhWUDhrSzlKdHgtV0dLZUI1SDlxYzdYU1J4YTJCRGw4ZjZiTWVvenllSHRWOE1WLWlPQzZqZy1OQnVkLS15RUxUenlZdmhzcVB4TVFZd2d2WGlLN2xvajI5RmhDT0JXQUFlSld3?oc=5" target="_blank" rel="noopener">How Consumers Are Tinkering with Cutting-Edge AI - Kiplinger</a></div>
+              <div class="muted small">2025-09-23 21:30</div>
+<div class="small">How Consumers Are Tinkering with Cutting-Edge AI Kiplinger</div>            </div>
+            <div class="news-item">
+              <div><strong>[Skift]</strong> <a href="https://news.google.com/rss/articles/CBMijgFBVV95cUxOODI1M0ozOS1jOXk4N1pGSm5CdHhLN3ljSVVseEhJTWhQUGNncFg3QVdKM0Z3MEQ0UEExMXVYRThKMG95Vkd6RFpGLWJLTTk4c3AtT3hKRG1oekFjR1p2b0tqNHpIdWMzQU1TNGlFT2NnbEpnWC1kM0U3UklFdUdXaGNRX3BDVTc4OHpOZll3?oc=5" target="_blank" rel="noopener">Marriott Taps Loyalty Members at HQ Event, Tests AI Chat - Skift</a></div>
+              <div class="muted small">2025-09-23 21:28</div>
+<div class="small">Marriott Taps Loyalty Members at HQ Event, Tests AI Chat Skift</div>            </div>
+            <div class="news-item">
+              <div><strong>[CIO Dive]</strong> <a href="https://news.google.com/rss/articles/CBMiekFVX3lxTE9lUGJ1c0dpVVlIZW4xZ3dUR2luS1pGMUJSX2pHOXp4SDhuaHlHR0M3MjIwb3plU3FNRVVja0ZOV3B0d0N2MG1QQkJaME5pdTJNYUpZRUV2YzNHVGNBTzQ4bVJmdlhvTWF1Z2pHTnBPVV80RGpsTDlLVFRR?oc=5" target="_blank" rel="noopener">Snowflake leads push to standardize metadata for AI - CIO Dive</a></div>
+              <div class="muted small">2025-09-23 21:25</div>
+<div class="small">Snowflake leads push to standardize metadata for AI CIO Dive</div>            </div>
+            <div class="news-item">
+              <div><strong>[AJC.com]</strong> <a href="https://news.google.com/rss/articles/CBMiwgFBVV95cUxQckNZdG5lUnlmdkpza2oxZnJZb0dNXzZBT0pBZWRVcGhfd0dXb1gxNmlKZzg1VGVQS3hmWUtHSWFZbFJDYkVobXpFQUsxd0stSUJTQTNpQlJWdC12UjVGMDBib2czeTBwUDl4NFFra2dOYlpGQThmMzdZOXU5Z3pNSVBRVkxlSkFuOVdUb3VNcFE4eExsLXBNeUdzRzRKNmwxN25sUEthRC11Ny1YMnNNN2Fja3JiRHlwVW9STlhQQ3hvQQ?oc=5" target="_blank" rel="noopener">OpenAI and Oracle show off Stargate AI data center in Texas and plan five more elsewhere - AJC.com</a></div>
+              <div class="muted small">2025-09-23 21:22</div>
+<div class="small">OpenAI and Oracle show off Stargate AI data center in Texas and plan five more elsewhere AJC.com</div>            </div>
+      </div>
+
+      <!-- 🧠 Editorial (NOW INSIDE MAIN) -->
+      <div class="panel">
+        <h3>🧠 Daily AI Summary & Research Picks</h3>
+
+          <p style="margin-top:.5rem">High-level AI/fintech headlines: The Magic of Building a Hybrid RAG AI Assistant for Automation Certification - Cisco Blogs; Axon Says It Will Buy 911 AI Call Center Tech Firm Prepared - GovTech; How Consumers Are Tinkering with Cutting-Edge AI - Kiplinger</p>
+
+          <h4 style="margin-top:1rem;">Macro take</h4>
+          <p>Context: watch adoption pace, enterprise ROI and regulatory updates across AI infrastructure and applications.</p>
+
+          <h4 style="margin-top:1rem;">Research picks</h4>
+          <ul>
+              <li>
+                <strong>The Magic of Building a Hybrid RAG AI Assistant for Automation Certification - Cisco Blogs</strong>
+ — Momentum/implications. · <a href="https://news.google.com/rss/articles/CBMirgFBVV95cUxOUG5zLU5reGdTQ3FvbkxnOElsS1ZUSDJXTzFTQjFnSWVGdGo1UTBXYnM4YU1CR0FkTnVubVBQcDFZS1o0UGRIWmtxY3BfbU0xZklDT3dWcUhxQWpjRGlBdFdKM0dYdnltTUpqeHZ0RDdQc0NmM2lBNjE0ODFwbGM0THJGN0RONXZ3TUkzbWN4M244V3VCUFhETEwxcW5ibjA0cEV6U0llSW15MTlaRXc?oc=5" target="_blank" rel="noopener">link</a>              </li>
+              <li>
+                <strong>Axon Says It Will Buy 911 AI Call Center Tech Firm Prepared - GovTech</strong>
+ — Momentum/implications. · <a href="https://news.google.com/rss/articles/CBMikAFBVV95cUxPY01feEhWRkNuWFZKMXBMY2lDRERIeGNBSVFzdE5jc0o0UVZidUxLaFR6bXA0R3g0Slczc014b09PMXRUZmV2UTlxTjh1M2ZXaGZkUlRGVThHUHBYTFVRams3clEwRm55RWJlcmZEelVCZVEzbUozTUxyOFNiZ0JuM1RrVHNibFc3NFRyWnJPcjM?oc=5" target="_blank" rel="noopener">link</a>              </li>
+              <li>
+                <strong>How Consumers Are Tinkering with Cutting-Edge AI - Kiplinger</strong>
+ — Momentum/implications. · <a href="https://news.google.com/rss/articles/CBMiekFVX3lxTE1OckxHVWJFSUxPQ1kzTnhWUDhrSzlKdHgtV0dLZUI1SDlxYzdYU1J4YTJCRGw4ZjZiTWVvenllSHRWOE1WLWlPQzZqZy1OQnVkLS15RUxUenlZdmhzcVB4TVFZd2d2WGlLN2xvajI5RmhDT0JXQUFlSld3?oc=5" target="_blank" rel="noopener">link</a>              </li>
+          </ul>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
