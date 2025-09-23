@@ -11,3 +11,4 @@ recurring-ical-events
 openai
 python-dotenv
 pyyaml
+certifi
