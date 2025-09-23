@@ -7,3 +7,4 @@ pyyaml
 beautifulsoup4
 requests
 lxml
+recurring-ical-events

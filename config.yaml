@@ -4,6 +4,9 @@ watchlist:
   - GOOGL
   - SNOW
   - PLTR
+  - META
+  - AAPL
+  - AMZN
 
 paths:
   charts_dir: "outputs/charts"
@@ -12,3 +15,21 @@ paths:
 study_blocks:
   min_block_minutes: 60
   deep_block_minutes: 90
+
+news:
+  keywords:
+    - "AI"
+    - "Machine Learning"
+    - "LLM"
+    - "RAG"
+    - "vector database"
+    - "AI agent"
+    - "B2B payments"
+    - "invoice automation"
+    - "AR/AP automation"
+    - "fintech SaaS"
+    - "enterprise AI"
+  limit: 6              # cuántas notas quieres mostrar
+  max_age_hours: 48     # solo noticias recientes (últimas 48h)
+  lang: "en-US"         # idioma/noticias en inglés
+  region: "US"          # región (US funciona bien para tech)
