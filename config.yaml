@@ -9,7 +9,7 @@ watchlist:
   - AMZN
 
 paths:
-  charts_dir: "outputs/charts"
+  charts_dir: "docs/charts"
   calendar_ics: "USE_LOCAL_OVERRIDE"   
 
 study_blocks:
@@ -29,7 +29,7 @@ news:
     - "AR/AP automation"
     - "fintech SaaS"
     - "enterprise AI"
-  limit: 5              # cuántas notas quieres mostrar
+  limit: 6              # cuántas notas quieres mostrar
   max_age_hours: 36     # solo noticias recientes (últimas 48h)
   lang: "en-US"         # idioma/noticias en inglés
   region: "US"          # región (US funciona bien para tech)

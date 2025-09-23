@@ -12,7 +12,7 @@ from src.calendar_util import get_free_blocks
 from src.news import fetch_news
 from src.render import render_brief
 from src.llm import summarize_news
-
+from src.emailer import send_brief  # envía el HTML por correo (si lo habilitas)
 
 def load_config(path: str) -> Dict[str, Any]:
     """Load config.yaml and, if present, overlay with config.local.yaml (unversioned)."""
@@ -44,7 +44,7 @@ def main() -> None:
 
     # === 📈 Markets ===
     tickers: List[str] = list(cfg.get("watchlist", [])) if isinstance(cfg.get("watchlist", []), list) else []
-    charts_dir: str = str(cfg.get("paths", {}).get("charts_dir", "outputs/charts"))
+    charts_dir: str = str(cfg.get("paths", {}).get("charts_dir", "docs/charts"))  # <- para GitHub Pages
     df = fetch_watchlist(tickers, charts_dir)
 
     print("\n=== 📈 Markets (resumen) ===")
@@ -122,18 +122,24 @@ def main() -> None:
             for p in editorial["picks"]:
                 print(f"- {p.get('title','')} — {p.get('why','')}")
 
-    # === 🖨️ Render HTML ===
-    out_html = Path("outputs/brief.html")
+    # === 🖨️ Render HTML (para GitHub Pages) ===
+    out_html = Path("docs/index.html")
+    out_html.parent.mkdir(parents=True, exist_ok=True)  # asegúrate que docs/ exista
+
     markets_list: List[Dict[str, Any]] = []
     if df is not None and not df.empty:
         for r in df.to_dict(orient="records"):
-            chart_path = r.get("chart", "")
+            chart_path = r.get("chart", "")  # p.ej. "docs/charts/NVDA.png"
             chart_url = ""
             if chart_path:
                 p = Path(chart_path)
-                if not p.is_absolute():
-                    p = (Path.cwd() / p).resolve()
-                chart_url = p.as_uri()
+                # Queremos src relativo desde docs/ (ej. "charts/NVDA.png")
+                try:
+                    rel = p.relative_to(Path("docs"))
+                    chart_url = str(rel).replace("\\", "/")
+                except ValueError:
+                    # Si por alguna razón no cuelga de docs/, lo dejamos tal cual (mejor que fallar)
+                    chart_url = str(p).replace("\\", "/")
             markets_list.append({
                 "ticker": r.get("ticker", ""),
                 "price": float(r.get("price", 0.0)),
@@ -182,6 +188,15 @@ def main() -> None:
 
     out_file = render_brief(context, template_path, str(out_html))
     print(f"\n🖨️  HTML generado: {out_file}")
+
+    # === ✉️ Email (opcional) ===
+    email_cfg: Dict[str, Any] = cfg.get("email", {}) or {}
+    if email_cfg.get("enabled", False):
+        try:
+            send_brief(cfg, out_file)
+            print("✉️  Email enviado con el brief adjunto.")
+        except Exception as e:
+            print(f"[WARN] No se pudo enviar el email: {e}")
 
 
 if __name__ == "__main__":
