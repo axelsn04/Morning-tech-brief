@@ -199,5 +199,37 @@ def main() -> None:
             print(f"[WARN] No se pudo enviar el email: {e}")
 
 
+    # === 🚀 Publicar en GitHub Pages + enviar link ===
+    pub_cfg = cfg.get("publish", {}) or {}
+    if pub_cfg.get("auto", True):
+        import subprocess, shlex
+
+        cmd = "scripts/publish.sh"
+        print(f"[publish] Running: {cmd}")
+        try:
+            completed = subprocess.run(
+                shlex.split(cmd),
+                cwd=str(Path.cwd()),
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if completed.returncode == 0:
+                print("[publish] OK")
+            else:
+                print("[publish] Non-zero exit:\n", completed.stdout, completed.stderr)
+        except Exception as e:
+            print(f"[publish] ERROR: {e}")
+
+        # Enviar link por email
+        site_url = pub_cfg.get("site_url", "").strip()
+        if site_url:
+            try:
+                from src.emailer import send_pages_link
+                send_pages_link(cfg, site_url)
+            except Exception as e:
+                print(f"[email] ERROR sending link: {e}")
+
+
 if __name__ == "__main__":
     main()

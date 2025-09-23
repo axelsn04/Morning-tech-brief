@@ -41,3 +41,14 @@ ai:
   max_tokens: 600
   temperature: 0.3
   timeout_sec: 35
+
+publish:
+  auto: true
+  site_url: "https://axelsn04.github.io/Morning-tech-brief/"  
+
+email:
+  enabled: true
+  provider: "gmail"
+  from: "axelhdzsn@gmail.com"
+  to: ["axelhdzsn@gmail.com"]   
+  subject: "🌅 Morning Tech Brief (link)"
