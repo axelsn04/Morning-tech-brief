@@ -11,8 +11,7 @@ venv/
 
 # Salidas del proyecto
 outputs/
-*.html
-*.png
+
 
 # Archivos temporales
 *.log
