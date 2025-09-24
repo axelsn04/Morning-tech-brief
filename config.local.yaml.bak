@@ -1,0 +1,16 @@
+email:
+  enabled: true
+  from: "axelhdzsn@gmail.com"
+  to: ["axelhdzsn@gmail.com"]
+  smtp:
+    host: smtp.gmail.com
+    user: "axelhdzsn@gmail.com"
+    # password: ""   # ← leave absent or empty to use env GMAIL_APP_PASSWORD
+    port_ssl: 465
+    prefer_ssl: true
+ai:
+  enabled: true
+publish:
+  auto: true
+paths:
+  charts_dir: docs/charts
