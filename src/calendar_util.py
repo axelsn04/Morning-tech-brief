@@ -5,33 +5,32 @@ from datetime import date, datetime, time, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple, cast
 
-from icalendar import Calendar
+from icalendar import Calendar as _Calendar
 from zoneinfo import ZoneInfo
-from icalendar import Calendar
 
-def _load_calendar(ics_path: str | Path) -> Calendar:
-    """Read ICS and return an icalendar.Calendar (cast to please Pylance)."""
+
+def _load_calendar(ics_path: str | Path) -> _Calendar:
+    """Read ICS and return an icalendar.Calendar (cast for type checkers)."""
     p = Path(ics_path)
     if not p.exists():
         raise FileNotFoundError(f"ICS not found: {p}")
-    # Leer como texto para complacer a los stubs de icalendar (evita warning bytes->str)
     text = p.read_text(encoding="utf-8", errors="ignore")
-    return cast(Calendar, Calendar.from_ical(text))
+    return cast(_Calendar, _Calendar.from_ical(text))
 
 
 def _to_local_dt(val: datetime | date, tz: ZoneInfo, is_end: bool = False) -> datetime:
     """
     Convert DTSTART/DTEND values to timezone-aware local datetimes.
-    - If a pure date (all-day), start => 00:00 local, end => 00:00 next day local.
-    - If datetime with tzinfo => astimezone(tz).
-    - If naive datetime => assume it's already local and set tz.
+    - date => 00:00 local (end uses next day 00:00)
+    - aware datetime => astimezone(tz)
+    - naive datetime => assume local tz
     """
     if isinstance(val, datetime):
         if val.tzinfo is not None:
             return val.astimezone(tz)
         return val.replace(tzinfo=tz)
 
-    # All-day: for end we use next day 00:00 (exclusive end)
+    # All-day (date)
     if is_end:
         return datetime(val.year, val.month, val.day, 0, 0, tzinfo=tz) + timedelta(days=1)
     return datetime(val.year, val.month, val.day, 0, 0, tzinfo=tz)
@@ -63,7 +62,7 @@ def _merge_intervals(intervals: List[Tuple[datetime, datetime]]) -> List[Tuple[d
     return merged
 
 
-def _expand_events_for_range(cal: Calendar, rng_start: datetime, rng_end: datetime) -> List[Dict]:
+def _expand_events_for_range(cal: _Calendar, rng_start: datetime, rng_end: datetime) -> List[Dict]:
     """
     Expand events (incl. recurrences) that overlap [rng_start, rng_end).
     Returns [{'start': dt, 'end': dt, 'summary': str, 'all_day': bool}, ...]
@@ -77,7 +76,7 @@ def _expand_events_for_range(cal: Calendar, rng_start: datetime, rng_end: dateti
         import recurring_ical_events  # type: ignore
         comps = recurring_ical_events.of(cal).between(start_wide, end_wide)
     except Exception:
-        # Fallback: no expansion (recurring exceptions may be missed)
+        # Fallback: iterate plain VEVENTs
         comps = [c for c in cal.walk("VEVENT")]
 
     for comp in comps:
@@ -101,18 +100,16 @@ def _expand_events_for_range(cal: Calendar, rng_start: datetime, rng_end: dateti
             "all_day": bool(is_all_day),
         })
 
-    # Keep only those that actually overlap the requested range
+    # Keep only those that overlap the requested range
     out: List[Dict] = []
     for ev in events:
         s, e = ev["start"], ev["end"]
-        # Convert to datetimes for comparison; treat date as all-day block
         if isinstance(s, date) and not isinstance(s, datetime):
             s = datetime(s.year, s.month, s.day)
         if isinstance(e, date) and not isinstance(e, datetime):
             e = datetime(e.year, e.month, e.day)
         if s < rng_end and e > rng_start:
-            ev["start"] = s
-            ev["end"] = e
+            ev["start"], ev["end"] = s, e
             out.append(ev)
 
     return out
@@ -132,11 +129,16 @@ def get_free_blocks(
 ) -> tuple[List[Dict], List[Dict]]:
     """
     Compute today's free blocks ≥ min_block minutes inside [day_start_hour, day_end_hour].
-    Returns (blocks, suggestions); each block/suggestion is:
-      {'start': naive_local_dt, 'end': naive_local_dt, 'minutes': int, 'type'?: 'Deep work'}
+    Returns (blocks, suggestions). If the ICS is missing, returns ([], []) and prints a note.
     """
     tz = ZoneInfo(tz_name)
-    cal = _load_calendar(ics_path)
+
+    # CI-safe: skip agenda if ICS missing
+    try:
+        cal = _load_calendar(ics_path)
+    except FileNotFoundError:
+        print(f"[calendar] ICS not found → skipping agenda (path: {ics_path})")
+        return [], []
 
     today = datetime.now(tz).date()
     win_start = datetime(today.year, today.month, today.day, day_start_hour, 0, tzinfo=tz)
@@ -150,7 +152,7 @@ def get_free_blocks(
         start_local = _to_local_dt(ev["start"], tz, is_end=False)
         end_local = _to_local_dt(ev["end"], tz, is_end=True)
 
-        # Guard against zero/negative durations (malformed DTEND)
+        # Guard against zero/negative durations
         if end_local <= start_local:
             end_local = start_local + timedelta(minutes=1)
 
@@ -170,7 +172,7 @@ def get_free_blocks(
     if cur < win_end:
         free.append((cur, win_end))
 
-    # Keep only gaps ≥ min_block and return naive (tz removed) for display
+    # Keep only gaps ≥ min_block and strip tz for display
     blocks: List[Dict] = []
     for s, e in free:
         mins = int((e - s).total_seconds() // 60)
